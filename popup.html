@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Creator</title>
+
+  <!--
+    FONT: Press Start 2P — the canonical 8-bit/pixel font.
+    Every character is a perfect 8x8 pixel grid.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <!-- ░ SCANLINE OVERLAY removed — was causing eye strain ░ -->
+  <!-- <div class="scanlines" aria-hidden="true"></div> -->
+
+  <!-- ╔══════════════════════════════════════════╗ -->
+  <!--              MAIN POPUP WRAPPER              -->
+  <!-- ╚══════════════════════════════════════════╝ -->
+  <div class="popup-wrapper" id="popupWrapper">
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="px-header">
+      <!-- Pixel-art QR glyph, hand-drawn in SVG grid — accent colour updated to #f2c332 -->
+      <svg class="px-header__icon" width="28" height="28" viewBox="0 0 7 7"
+           xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated" aria-hidden="true">
+        <rect x="0" y="0" width="3" height="3" fill="#f2c332"/>
+        <rect x="1" y="1" width="1" height="1" fill="#1D2B53"/>
+        <rect x="4" y="0" width="1" height="1" fill="#f2c332"/>
+        <rect x="6" y="0" width="1" height="1" fill="#f2c332"/>
+        <rect x="4" y="2" width="3" height="1" fill="#f2c332"/>
+        <rect x="0" y="3" width="1" height="1" fill="#f2c332"/>
+        <rect x="2" y="3" width="2" height="1" fill="#f2c332"/>
+        <rect x="5" y="3" width="2" height="1" fill="#f2c332"/>
+        <rect x="1" y="4" width="2" height="1" fill="#f2c332"/>
+        <rect x="4" y="4" width="1" height="1" fill="#f2c332"/>
+        <rect x="0" y="5" width="3" height="2" fill="#f2c332"/>
+        <rect x="1" y="6" width="1" height="1" fill="#1D2B53"/>
+        <rect x="4" y="5" width="1" height="1" fill="#f2c332"/>
+        <rect x="6" y="5" width="1" height="3" fill="#f2c332"/>
+        <rect x="4" y="7" width="2" height="1" fill="#f2c332"/>
+      </svg>
+<div class="px-header__text">
+  <a href="https://www.google.com/" class="px-header__link" target="_blank">
+    <h1 class="px-header__title">QR Code Creator</h1>
+    <p class="px-header__sub">open source project</p>
+  </a>
+</div>
+      <span class="px-header__blink" aria-hidden="true">▮</span>
+    </header>
+
+    <!-- ═══ TYPE SELECTOR TABS ═══ -->
+    <nav class="px-tabs" role="tablist" aria-label="QR code type selector">
+      <button class="px-tab active" id="tab-url"
+              role="tab" aria-selected="true" aria-controls="panel-url" data-type="url">
+        <svg class="tab-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Link icon: two connected square links -->
+          <rect x="2" y="5" width="3" height="3" fill="currentColor"/>
+          <rect x="4" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="5" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="6" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="7" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="11" y="8" width="3" height="3" fill="currentColor"/>
+        </svg>
+        <span class="tab-label">URL/TEXT</span>
+      </button>
+      <button class="px-tab" id="tab-wifi"
+              role="tab" aria-selected="false" aria-controls="panel-wifi" data-type="wifi">
+        <svg class="tab-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Wi-Fi icon: signal arcs -->
+          <rect x="7" y="11" width="2" height="2" fill="currentColor"/>
+          <rect x="5" y="9" width="1" height="1" fill="currentColor"/>
+          <rect x="10" y="9" width="1" height="1" fill="currentColor"/>
+          <rect x="4" y="8" width="1" height="1" fill="currentColor"/>
+          <rect x="11" y="8" width="1" height="1" fill="currentColor"/>
+          <rect x="3" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="12" y="6" width="1" height="1" fill="currentColor"/>
+        </svg>
+        <span class="tab-label">WI-FI</span>
+      </button>
+      <button class="px-tab" id="tab-vcard"
+              role="tab" aria-selected="false" aria-controls="panel-vcard" data-type="vcard">
+        <svg class="tab-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- vCard icon: blocky person silhouette -->
+          <rect x="6" y="3" width="4" height="3" fill="currentColor"/>
+          <rect x="5" y="6" width="6" height="2" fill="currentColor"/>
+          <rect x="4" y="8" width="1" height="3" fill="currentColor"/>
+          <rect x="8" y="8" width="1" height="3" fill="currentColor"/>
+          <rect x="4" y="11" width="1" height="2" fill="currentColor"/>
+          <rect x="8" y="11" width="1" height="2" fill="currentColor"/>
+        </svg>
+        <span class="tab-label">VCARD</span>
+      </button>
+    </nav>
+
+    <!-- ═══ INPUT PANELS ═══ -->
+    <section class="px-input-area" aria-label="Data input">
+
+      <!-- ── URL / Text panel ── -->
+      <div class="input-panel active" id="panel-url" role="tabpanel" aria-labelledby="tab-url">
+        <label class="px-label" for="inputUrl">► DATA</label>
+        <textarea class="px-input px-textarea" id="inputUrl"
+                  placeholder="https://example.com  or  any text…"
+                  rows="2" spellcheck="false" autocomplete="off"></textarea>
+      </div>
+
+      <!-- ── Wi-Fi panel ── -->
+      <div class="input-panel" id="panel-wifi" role="tabpanel" aria-labelledby="tab-wifi" hidden>
+        <label class="px-label" for="wifiSsid">► SSID (NETWORK NAME)</label>
+        <input class="px-input" id="wifiSsid" type="text" placeholder="PixelNet_5G" autocomplete="off" />
+
+        <label class="px-label" for="wifiPass">► PASSWORD</label>
+        <input class="px-input" id="wifiPass" type="password" placeholder="••••••••" autocomplete="off" />
+
+        <label class="px-label" for="wifiEnc">► ENCRYPTION TYPE</label>
+        <div class="px-select-wrap">
+          <select class="px-select" id="wifiEnc">
+            <option value="WPA">WPA / WPA2</option>
+            <option value="WEP">WEP</option>
+            <option value="nopass">NONE (OPEN)</option>
+          </select>
+          <span class="px-select-arrow" aria-hidden="true">▼</span>
+        </div>
+
+        <label class="px-label px-label--inline">
+          <input type="checkbox" id="wifiHidden" class="px-checkbox-native" />
+          <span class="px-checkbox-box" aria-hidden="true"></span>
+          HIDDEN NETWORK
+        </label>
+      </div>
+
+      <!-- ── vCard panel ── -->
+      <div class="input-panel" id="panel-vcard" role="tabpanel" aria-labelledby="tab-vcard" hidden>
+        <div class="px-field-row">
+          <div class="px-field">
+            <label class="px-label" for="vcardFirst">► FIRST</label>
+            <input class="px-input" id="vcardFirst" type="text" placeholder="Mario" />
+          </div>
+          <div class="px-field">
+            <label class="px-label" for="vcardLast">► LAST</label>
+            <input class="px-input" id="vcardLast" type="text" placeholder="Bros" />
+          </div>
+        </div>
+        <label class="px-label" for="vcardPhone">► PHONE</label>
+        <input class="px-input" id="vcardPhone" type="tel" placeholder="+1 555 000 0000" />
+        <label class="px-label" for="vcardEmail">► EMAIL</label>
+        <input class="px-input" id="vcardEmail" type="email" placeholder="mario@mushroom.kingdom" />
+        <label class="px-label" for="vcardOrg">► ORGANIZATION</label>
+        <input class="px-input" id="vcardOrg" type="text" placeholder="Mushroom Kingdom Inc." />
+        <label class="px-label" for="vcardUrl">► WEBSITE</label>
+        <input class="px-input" id="vcardUrl" type="url" placeholder="https://mushroom.kingdom" />
+      </div>
+
+    </section><!-- /.px-input-area -->
+
+    <!-- ═══ QR DISPLAY FRAME — The Pixel Canvas ═══ -->
+    <div class="px-qr-frame" id="qrFrame">
+      <!-- Four corner decorators drawn in CSS/pseudo-elements -->
+      <div class="px-corner px-corner--tl" aria-hidden="true"></div>
+      <div class="px-corner px-corner--tr" aria-hidden="true"></div>
+      <div class="px-corner px-corner--bl" aria-hidden="true"></div>
+      <div class="px-corner px-corner--br" aria-hidden="true"></div>
+
+      <!--
+        TARGET DIV: qr-code-styling renders its <canvas> or <svg>
+        directly into this element via the .append() method.
+      -->
+      <div id="qrCanvas" class="qr-canvas-inner" aria-label="Generated QR code" role="img"></div>
+
+      <div class="px-qr-frame__label" aria-hidden="true">[ SCAN ME ]</div>
+    </div>
+
+    <!-- ═══ OUTPUT ACTIONS ═══ -->
+    <div class="px-actions" role="toolbar" aria-label="Output actions">
+      <button class="px-btn px-btn--green"  id="btnDownloadPng">
+        <svg class="btn-icon" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Download arrow down -->
+          <rect x="5" y="1" width="2" height="6" fill="currentColor"/>
+          <rect x="4" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="7" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="3" y="7" width="6" height="1" fill="currentColor"/>
+        </svg>
+        <span>PNG</span>
+      </button>
+      <button class="px-btn px-btn--blue"   id="btnDownloadSvg">
+        <svg class="btn-icon" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Download arrow down -->
+          <rect x="5" y="1" width="2" height="6" fill="currentColor"/>
+          <rect x="4" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="7" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="3" y="7" width="6" height="1" fill="currentColor"/>
+        </svg>
+        <span>SVG</span>
+      </button>
+      <button class="px-btn px-btn--yellow" id="btnCopyImg">
+        <svg class="btn-icon" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Clipboard icon -->
+          <rect x="3" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="4" y="2" width="3" height="1" fill="currentColor"/>
+          <rect x="2" y="3" width="8" height="1" fill="currentColor"/>
+          <rect x="2" y="4" width="1" height="5" fill="currentColor"/>
+          <rect x="9" y="4" width="1" height="5" fill="currentColor"/>
+          <rect x="2" y="9" width="8" height="1" fill="currentColor"/>
+        </svg>
+        <span>COPY</span>
+      </button>
+      <button class="px-btn px-btn--pink"   id="btnCopyData">
+        <svg class="btn-icon" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Document/Data icon with lines -->
+          <rect x="2" y="1" width="8" height="10" fill="none" stroke="currentColor" stroke-width="1"/>
+          <rect x="3" y="4" width="6" height="1" fill="currentColor"/>
+          <rect x="3" y="6" width="6" height="1" fill="currentColor"/>
+          <rect x="3" y="8" width="4" height="1" fill="currentColor"/>
+        </svg>
+        <span>DATA</span>
+      </button>
+    </div>
+
+    <!-- ═══ ADVANCED SETTINGS ACCORDION ═══ -->
+    <div class="px-accordion" id="accordion">
+
+      <button class="px-accordion__trigger" id="advToggle"
+              aria-expanded="false" aria-controls="advContent">
+        <span class="acc-arrow" id="accArrow" aria-hidden="true">▶</span>
+        <span class="acc-label">ADVANCED SETTINGS</span>
+        <span class="acc-chip" aria-hidden="true">▼ EXPAND</span>
+      </button>
+
+      <!-- Accordion slides open via CSS max-height transition -->
+      <div class="px-accordion__body" id="advContent" aria-hidden="true">
+
+        <!-- ── ERROR CORRECTION ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ ERROR CORRECTION LEVEL</legend>
+          <div class="px-ecl-group" id="eclGroup">
+            <button class="px-ecl active" data-ecl="L" title="Low — 7% data recovery">L</button>
+            <button class="px-ecl"        data-ecl="M" title="Medium — 15% data recovery">M</button>
+            <button class="px-ecl"        data-ecl="Q" title="Quartile — 25% data recovery">Q</button>
+            <button class="px-ecl"        data-ecl="H" title="High — 30% data recovery">H</button>
+          </div>
+          <p class="adv-hint" id="eclHint">LOW (7% recovery) — smallest QR size</p>
+        </fieldset>
+
+        <!-- ── DOT STYLE ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ DOT STYLE</legend>
+          <div class="px-style-group" id="dotStyleGroup">
+            <button class="px-style active" data-dot="square"         title="Square — Pixel Perfect">■</button>
+            <button class="px-style"        data-dot="dots"           title="Dots — Circular">●</button>
+            <button class="px-style"        data-dot="rounded"        title="Rounded — Soft">▣</button>
+            <button class="px-style"        data-dot="classy"         title="Classy — Diamond">◆</button>
+            <button class="px-style"        data-dot="classy-rounded" title="Classy Rounded">◈</button>
+            <button class="px-style"        data-dot="extra-rounded"  title="Extra Rounded">⬟</button>
+          </div>
+        </fieldset>
+
+        <!-- ── CORNER SQUARE STYLE ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ CORNER SQUARE STYLE</legend>
+          <div class="px-style-group" id="cornerSqGroup">
+            <button class="px-style active" data-csq="square"         title="Square">■</button>
+            <button class="px-style"        data-csq="extra-rounded"  title="Rounded">🅞</button>
+            <button class="px-style"        data-csq="dot"            title="Dot">⚬</button>
+          </div>
+        </fieldset>
+
+        <!-- ── CORNER DOT STYLE ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ CORNER DOT STYLE</legend>
+          <div class="px-style-group" id="cornerDotGroup">
+            <button class="px-style active" data-cdot="square" title="Square Dot">■</button>
+            <button class="px-style"        data-cdot="dot"    title="Round Dot">●</button>
+          </div>
+        </fieldset>
+
+        <!-- ── COLORS ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ COLOR PALETTE</legend>
+
+          <div class="px-color-row">
+            <!-- Dots color -->
+            <div class="px-cpick">
+              <label class="px-label" for="colorDots">DOTS</label>
+              <div class="px-swatch-btn" id="swatchDots" style="background:#000000" tabindex="0" role="button" aria-label="Pick dot color">
+                <input type="color" id="colorDots" class="px-color-native" value="#000000" tabindex="-1" />
+              </div>
+            </div>
+            <!-- Background color -->
+            <div class="px-cpick">
+              <label class="px-label" for="colorBg">BG</label>
+              <div class="px-swatch-btn" id="swatchBg" style="background:#ffffff" tabindex="0" role="button" aria-label="Pick background color">
+                <input type="color" id="colorBg" class="px-color-native" value="#ffffff" tabindex="-1" />
+              </div>
+            </div>
+            <!-- Corner color -->
+            <div class="px-cpick">
+              <label class="px-label" for="colorCorner">CORNER</label>
+              <div class="px-swatch-btn" id="swatchCorner" style="background:#000000" tabindex="0" role="button" aria-label="Pick corner color">
+                <input type="color" id="colorCorner" class="px-color-native" value="#000000" tabindex="-1" />
+              </div>
+            </div>
+          </div>
+
+          <!-- PICO-8 Quick Palette Swatches -->
+          <div class="adv-hint">QUICK PALETTES:</div>
+          <div class="px-quickpalette" id="quickPalette">
+            <button class="qp-swatch" data-dots="#1D2B53" data-bg="#FFF1E8" data-corner="#7E2553" title="Midnight"></button>
+            <button class="qp-swatch" data-dots="#008751" data-bg="#000000" data-corner="#00E436" title="Matrix"></button>
+            <button class="qp-swatch" data-dots="#FF004D" data-bg="#FFF1E8" data-corner="#AB5236" title="Retro Red"></button>
+            <button class="qp-swatch" data-dots="#29ADFF" data-bg="#1D2B53" data-corner="#83769C" title="Neon Blue"></button>
+            <button class="qp-swatch" data-dots="#FFEC27" data-bg="#000000" data-corner="#FFA300" title="Arcade Gold"></button>
+            <button class="qp-swatch" data-dots="#FF77A8" data-bg="#1D2B53" data-corner="#7E2553" title="Pixel Pink"></button>
+          </div>
+
+          <!-- Invert toggle -->
+          <div class="px-toggle-row">
+            <span class="px-label">INVERT COLORS</span>
+            <label class="px-toggle" aria-label="Invert QR colors">
+              <input type="checkbox" id="toggleInvert" class="px-toggle-native" />
+              <span class="px-toggle-track">
+                <span class="px-toggle-thumb"></span>
+              </span>
+            </label>
+            <span class="px-toggle-state" id="invertState">OFF</span>
+          </div>
+        </fieldset>
+
+        <!-- ── LOGO ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ CENTER LOGO</legend>
+          <div class="px-logo-actions">
+            <button class="px-btn px-btn--outline" id="btnUploadLogo">📁 UPLOAD LOGO</button>
+            <button class="px-btn px-btn--danger"  id="btnRemoveLogo" style="display:none">✕ REMOVE</button>
+          </div>
+          <!-- Hidden native file input, triggered by button -->
+          <input type="file" id="logoFileInput" accept="image/*" style="display:none" />
+          <div class="logo-thumb-wrap" id="logoThumbWrap" style="display:none">
+            <img id="logoThumb" class="logo-thumb" alt="Logo preview" />
+            <span class="logo-thumb-label">LOADED</span>
+          </div>
+        </fieldset>
+
+        <!-- ── HOVER ENGINE ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ HOVER PREVIEW ENGINE</legend>
+          <div class="px-toggle-row">
+            <span class="px-label">FLOATING QR ON HOVER</span>
+            <label class="px-toggle" aria-label="Floating QR on hover toggle">
+              <input type="checkbox" id="toggleHover" class="px-toggle-native" />
+              <span class="px-toggle-track">
+                <span class="px-toggle-thumb"></span>
+              </span>
+            </label>
+            <span class="px-toggle-state" id="hoverState">OFF</span>
+          </div>
+          <p class="adv-hint">Hover any hyperlink on a webpage to see a floating pixel QR preview.</p>
+        </fieldset>
+
+        <!-- ── PRESETS ── -->
+        <fieldset class="adv-section">
+          <legend class="adv-title">◈ DESIGN PRESETS</legend>
+          <button class="px-btn px-btn--green px-btn--wide" id="btnSavePreset">
+            💾 SAVE CURRENT DESIGN
+          </button>
+          <!--
+            Preset thumbnails are injected here by popup.js.
+            Each is a small canvas showing the saved QR style.
+          -->
+          <div class="px-presets-grid" id="presetsGrid">
+            <div class="preset-empty" id="presetEmpty">[ NO PRESETS YET ]</div>
+          </div>
+        </fieldset>
+
+      </div><!-- /.px-accordion__body -->
+    </div><!-- /.px-accordion -->
+
+    <!-- ═══ STATUS BAR ═══ -->
+    <div class="px-statusbar">
+      <span class="status-icon" aria-hidden="true">●</span>
+      <span id="statusMsg">READY — SCANNING TAB…</span>
+      <a href="https://example.com" class="status-right px-header__link" target="_blank">★★★★★</a>
+    </div>
+
+  </div><!-- /.popup-wrapper -->
+
+  <!-- 8-bit particle burst container (populated by popup.js) -->
+  <div id="particleLayer" aria-hidden="true"></div>
+
+  <!-- In-popup toast notification -->
+  <div id="popupToast" class="popup-toast" role="status" aria-live="polite"></div>
+
+  <!--
+    LIBRARY LOAD ORDER (critical):
+    1. qr-code-styling.min.js  → exposes global QRCodeStyling constructor
+    2. popup.js                → consumes QRCodeStyling for all rendering
+  -->
+  <script src="libs/qr-code-styling.min.js"></script>
+  <script src="popup.js"></script>
+
+</body>
+</html>
